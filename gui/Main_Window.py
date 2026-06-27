@@ -8,11 +8,11 @@ from core.Renderer import MapCanvas, THEME, CELL
 from core.Game import find_player, DIRECTIONS
 
 from algorithms.Uninformed_Search   import BFS, DFS, IDS
-from algorithms.Informed_Search     import A, GBFS, IDA
-from algorithms.Local_Search import Simple_Hill, Simulated_Annealing, Local_Beam
+from algorithms.Informed_Search     import Greedy, IDA, A
+from algorithms.Local_Search        import Simple_Hill, Simulated_Annealing, Local_Beam
 from algorithms.Constraint_Satisfaction_Problems          import Backtracking_Search, Forward_Checking, Min_Conflicts
-from algorithms.Adversarial_Search  import Minimax, Alpha_Beta, Expectimax
-from algorithms.Complex_Environments import Partial_Observation, And_Or_Search, Sensorless
+from algorithms.Adversarial_Search      import Minimax, Alpha_Beta, Expectimax
+from algorithms.Complex_Environments    import Partial_Observation, And_Or_Search, Sensorless
 
 MAP_OPTIONS = [
     {
@@ -44,9 +44,9 @@ MAP_OPTIONS = [
 
 ALGO_GROUPS = [
     {"name": "Uninformed Search", "color": "#4ecca3",
-     "algos": [("BFS", BFS()), ("DFS", DFS()), ("UCS", UCS())]},
+     "algos": [("BFS", BFS()), ("DFS", DFS()), ("IDS", IDS())]},
     {"name": "Informed Search",   "color": "#74b9ff",
-     "algos": [("GBFS", GBFS()), ("A*", A()), ("IDA*", IDA())]},
+     "algos": [("GBFS", Greedy()), ("A*", A()), ("IDA*", IDA())]},
     {"name": "Local Search",      "color": "#f5a623",
      "algos": [("Hill Climbing", Simple_Hill()),
                ("Simulated Annealing", Simulated_Annealing()),
