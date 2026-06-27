@@ -9,10 +9,10 @@ from core.Game import find_player, DIRECTIONS
 
 from algorithms.Uninformed_Search   import BFS, DFS, IDS
 from algorithms.Informed_Search     import Greedy, IDA, A
-from algorithms.Local_Search        import Simple_Hill, Simulated_Annealing, Local_Beam
+from algorithms.Local_Search        import Simple_Hill, Simulated_Annealing, Local_Beam_Search
 from algorithms.Constraint_Satisfaction_Problems          import Backtracking_Search, Forward_Checking, Min_Conflicts
 from algorithms.Adversarial_Search      import Minimax, Alpha_Beta, Expectimax
-from algorithms.Complex_Environments    import Partial_Observation, And_Or_Search, Sensorless
+from algorithms.Complex_Environments    import Partial_Observation, And_Or_Search, No_Observation
 
 MAP_OPTIONS = [
     {
@@ -50,7 +50,7 @@ ALGO_GROUPS = [
     {"name": "Local Search",      "color": "#f5a623",
      "algos": [("Hill Climbing", Simple_Hill()),
                ("Simulated Annealing", Simulated_Annealing()),
-               ("Local Beam Search", Local_Beam())]},
+               ("Local Beam Search", Local_Beam_Search())]},
     {"name": "CSP",               "color": "#a29bfe",
      "algos": [("Backtracking", Backtracking_Search()),
                ("Forward Checking", Forward_Checking()),
@@ -60,7 +60,7 @@ ALGO_GROUPS = [
                ("Expectimax", Expectimax())]},
     {"name": "Belief State",      "color": "#fd79a8",
      "algos": [("Partial Observation", Partial_Observation()),
-               ("AND-OR Graph", And_Or_Search()), ("Sensorless", Sensorless())]},
+               ("AND-OR Graph", And_Or_Search()), ("Sensorless", No_Observation())]},
 ]
 
 # Canvas cell size — bigger for a larger game board
