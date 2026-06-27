@@ -6,6 +6,11 @@ import tkinter as tk
 from core.Game import (WALL, PLAYER, BOX, GOAL,
                        BOX_ON_GOAL, PLAYER_ON_GOAL, EMPTY)
 
+# Ký hiệu bom (từ bomb_solver)
+BOMB      = 10
+BOMB_GOAL = 11
+EXPLODED  = 12
+
 # ── Màu sắc giao diện ─────────────────────────────────────────
 THEME = {
     "bg":        "#1a1a2e",
@@ -13,29 +18,32 @@ THEME = {
     "border":    "#3b424b",
     "header":    "#0f3460",
     "accent":     "#8892a4",
-    "gold":      "#f5a623",
+    "gold":      "#de9800",
     "green":     "#4ecca3",
     "purple":    "#8b7cf8",
     "blue":      "#5aa9ff",
     "text":      "#f2f4f8",
     "dim":       "#8892a4",
-    "wall_fill": "#2d3561",
-    "wall_b":    "#12152a",
-    "floor":     "#1e2a45",
-    "goal_bg":   "#164c36",
-    "fog":       "#0f1115",
+    "wall_fill": "#d07136",
+    "wall_b":    "#704002",
+    "floor":     "#f9d898",
+    "goal_bg":   "#015A17",
+    "fog":       "#e2c073",
     "text_black" : "#0f1115",
 }
 
 
 TILE_BG = {
-    WALL:           "#2d3561",
-    EMPTY:          "#161e31",
+    WALL:          "#e17f3e",
+    EMPTY:          "#B8A789",
     GOAL:           "#0d2618",
     PLAYER:         "#115A32",
     PLAYER_ON_GOAL:  "#38b08a",
-    BOX:            "#c47d0e",
-    BOX_ON_GOAL:     "#01DE26",
+    BOX:            "#9a710a",
+    BOX_ON_GOAL:     "#009C1A",
+    BOMB:           "#2a1a3e",
+    BOMB_GOAL:      "#4a0a0a",
+    EXPLODED:       "#ff6600",
 }
 
 CELL = 56   # pixel mỗi ô — thay đổi ở đây để scale toàn bộ
@@ -110,6 +118,12 @@ class MapCanvas(tk.Canvas):
                 if val in (PLAYER, PLAYER_ON_GOAL):
                     self._draw_player(cx, cy, sz)
 
+                if val in (BOMB, BOMB_GOAL):
+                    self._draw_bomb(cx, cy, sz, activated=(val == BOMB_GOAL))
+
+                if val == EXPLODED:
+                    self._draw_exploded(x1, y1, x2, y2, cx, cy, sz)
+
     def draw_belief(self, grid, visible_cells):
         """
         Vẽ bản đồ với fog of war.
@@ -132,7 +146,7 @@ class MapCanvas(tk.Canvas):
                 gy2 = min(gy + step - 2,      y2 - 1)
                 if gx2 > gx and gy2 > gy:
                     self.create_rectangle(gx + 1, gy + 1, gx2, gy2,
-                        fill="#1B2A3D", outline=THEME["wall_b"], width=0)
+                        fill="#663300", outline=THEME["wall_b"], width=0)
 
     def _draw_goal(self, cx, cy, sz):
         m = sz // 3
@@ -154,15 +168,114 @@ class MapCanvas(tk.Canvas):
 
     def _draw_player(self, cx, cy, sz):
         h = sz // 7
-        # đầu
-        self.create_oval(cx - h, cy - sz // 3, cx + h, cy - sz // 8,
-            fill=THEME["green"], outline="#2a8a6a", width=1)
-        # thân
-        self.create_rectangle(cx - h, cy - sz // 9,
-                               cx + h, cy + sz // 4,
-            fill=THEME["green"], outline="#2a8a6a", width=1)
-        # mắt
-        self.create_oval(cx - sz//9, cy - sz//4,
-                         cx - sz//18, cy - sz//6, fill=THEME["bg"])
-        self.create_oval(cx + sz//18, cy - sz//4,
-                         cx + sz//9,  cy - sz//6, fill=THEME["bg"])
+
+        # Đầu
+        self.create_oval(
+            cx - h, cy - sz // 3,
+            cx + h, cy - sz // 8,
+            fill="#ffd6a5",
+            outline="#b9855a",
+            width=2
+        )
+
+        # Mũ
+        self.create_arc(
+            cx - h - 2, cy - sz // 3 - 2,
+            cx + h + 2, cy - sz // 8,
+            start=0, extent=180,
+            fill=THEME["gold"],
+            outline="#b67b00",
+            width=2
+        )
+
+        # Thân
+        self.create_rectangle(
+            cx - h, cy - sz // 9,
+            cx + h, cy + sz // 4,
+            fill=THEME["blue"],
+            outline="#2f72b7",
+            width=2
+        )
+
+        # Tay
+        self.create_line(
+            cx - h, cy,
+            cx - h - sz // 10, cy + sz // 12,
+            fill=THEME["green"],
+            width=3
+        )
+        self.create_line(
+            cx + h, cy,
+            cx + h + sz // 10, cy + sz // 12,
+            fill=THEME["green"],
+            width=3
+        )
+
+        # Chân
+        self.create_line(
+            cx - h // 2, cy + sz // 4,
+            cx - h // 2, cy + sz // 2 - 2,
+            fill=THEME["border"],
+            width=3
+        )
+        self.create_line(
+            cx + h // 2, cy + sz // 4,
+            cx + h // 2, cy + sz // 2 - 2,
+            fill=THEME["border"],
+            width=3
+        )
+
+        # Mắt
+        eye = max(2, sz // 20)
+        self.create_oval(
+            cx - sz // 10 - eye, cy - sz // 4,
+            cx - sz // 10 + eye, cy - sz // 4 + eye * 2,
+            fill="white", outline=""
+        )
+        self.create_oval(
+            cx + sz // 10 - eye, cy - sz // 4,
+            cx + sz // 10 + eye, cy - sz // 4 + eye * 2,
+            fill="white", outline=""
+        )
+
+        # Đồng tử
+        self.create_oval(
+            cx - sz // 10 - 1, cy - sz // 4 + 1,
+            cx - sz // 10 + 1, cy - sz // 4 + 3,
+            fill="black", outline=""
+        )
+        self.create_oval(
+            cx + sz // 10 - 1, cy - sz // 4 + 1,
+            cx + sz // 10 + 1, cy - sz // 4 + 3,
+            fill="black", outline=""
+        )
+        
+    def _draw_bomb(self, cx, cy, sz, activated=False):
+        """Vẽ trái Bom (bom)."""
+        r = sz // 3
+        # Thân bom
+        color = "#cc2200" if activated else "#9b59b6"
+        outline = "#ff4444" if activated else "#6c3483"
+        self.create_oval(cx - r, cy - r + 4, cx + r, cy + r + 4,
+            fill=color, outline=outline, width=2)
+        # Ngòi bom
+        fuse_col = "#f39c12" if activated else "#95a5a6"
+        self.create_line(cx, cy - r + 4, cx + r // 2, cy - r - 4,
+            fill=fuse_col, width=2)
+        # Dấu bom
+        self.create_text(cx, cy + 4, text="💣" if activated else "🔴",
+            font=("Arial", int(sz * 0.30)))
+
+    def _draw_exploded(self, x1, y1, x2, y2, cx, cy, sz):
+        """Vẽ ô tường bị phá (hiệu ứng nổ)."""
+        import random
+        colors = ["#ff6600", "#ffaa00", "#ff2200", "#ffff00"]
+        for _ in range(6):
+            rx1 = x1 + random.randint(2, sz // 3)
+            ry1 = y1 + random.randint(2, sz // 3)
+            rx2 = rx1 + random.randint(4, 12)
+            ry2 = ry1 + random.randint(4, 12)
+            self.create_rectangle(rx1, ry1, min(rx2, x2-2), min(ry2, y2-2),
+                fill=random.choice(colors), outline="", width=0)
+        self.create_text(cx, cy, text="💥",
+            font=("Arial", int(sz * 0.40)))
