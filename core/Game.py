@@ -105,7 +105,7 @@ def manhattan(a, b):
 def heuristic(grid):
     """
     Tổng khoảng cách Manhattan từ mỗi thùng đến đích gần nhất.
-    Dùng cho: GBFS, A*, IDA*, Hill Climbing, Beam Search...
+    Dùng cho: Greedy, A*, IDA*, Hill Climbing, Beam Search...
     """
     boxes = find_boxes(grid)
     goals = find_goals(grid)

@@ -7,12 +7,12 @@ import copy
 from core.Renderer import MapCanvas, THEME, CELL
 from core.Game import find_player, DIRECTIONS
 
-from algorithms.Uninformed_Search   import BFS, DFS, IDS
-from algorithms.Informed_Search     import Greedy, IDA, A
-from algorithms.Local_Search        import Simple_Hill, Simulated_Annealing, Local_Beam_Search
-from algorithms.Constraint_Satisfaction_Problems          import Backtracking_Search, Forward_Checking, Min_Conflicts
-from algorithms.Adversarial_Search      import Minimax, Alpha_Beta, Expectimax
-from algorithms.Complex_Environments    import Partial_Observation, And_Or_Search, No_Observation
+from algorithms.Uninformed_Search   import solve_bfs #, solve_dfs, solve_ucs
+from algorithms.Informed_Search     import solve_idastar #, solve_astar, solve_greedy
+from algorithms.Local_Search        import solve_hill_climbing #, solve_simulated_annealing, solve_local_beam
+from algorithms.Constraint_Satisfaction_Problems     import solve_backtracking #, solve_bomb_forward_checking, solve_bomb_min_conflicts
+#from algorithms.Adversarial_Search      import  solve_alphabeta#, solve_minimax, solve_expectimax
+from algorithms.Complex_Environments    import solve_partial_observation#, solve_and_or, solve_no_observation
 
 MAP_OPTIONS = [
     {
@@ -58,23 +58,24 @@ MAP_OPTIONS = [
 
 ALGO_GROUPS = [
     {"name": "Uninformed Search", "color": "#4ecca3",
-     "algos": [("BFS", solve_bfs), ("DFS", solve_dfs), ("UCS", solve_ucs)]},
+        "algos": [("BFS", solve_bfs),]}, #("DFS", solve_dfs), ("UCS", solve_ucs)]},
     {"name": "Informed Search",   "color": "#74b9ff",
-     "algos": [("GBFS", solve_gbfs), ("A*", solve_astar), ("IDA*", solve_idastar)]},
+     "algos": [("IDA*", solve_idastar),]}, #("Greedy", solve_greedy), ("A*", solve_astar)]},
     {"name": "Local Search",      "color": "#f5a623",
-     "algos": [("Hill Climbing", solve_hill_climbing),
-               ("Simulated Annealing", solve_simulated_annealing),
-               ("Local Beam Search", solve_local_beam)]},
+     "algos": [("Hill Climbing", solve_hill_climbing),]},
+               #("Simulated Annealing", solve_simulated_annealing),
+               #("Local Beam Search", solve_local_beam)]},
     {"name": "CSP",               "color": "#a29bfe",
-     "algos": [("Backtracking (Bom)", solve_bomb_backtracking),
-               ("Forward Checking (Bom)", solve_bomb_forward_checking),
-               ("Min-Conflicts (Bom)", solve_bomb_min_conflicts)]},
-    {"name": "Adversarial Search","color": "#e94560",
-     "algos": [("Minimax", solve_minimax), ("Alpha-Beta", solve_alphabeta),
-               ("Expectimax", solve_expectimax)]},
+     "algos": [("Backtracking", solve_backtracking),]},
+               #("Forward Checking", solve_forward_checking),
+               #("Min-Conflicts", solve_min_conflicts)]},
+   # {"name": "Adversarial Search","color": "#e94560",
+    # "algos": [("Alpha-Beta", solve_alphabeta),]},
+                #("Minimax", solve_minimax),
+               #("Expectimax", solve_expectimax)]},
     {"name": "Belief State",      "color": "#fd79a8",
-     "algos": [("Partial Observation", solve_partial_observation),
-               ("AND-OR Graph", solve_and_or), ("Sensorless", solve_sensorless)]},
+     "algos": [("Partial Observation", solve_partial_observation),]},
+              # ("AND-OR Graph", solve_and_or), ("Sensorless", solve_no_observation)]},
 ]
 
 # Canvas cell size
