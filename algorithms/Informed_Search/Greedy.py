@@ -3,13 +3,13 @@ from core.Game import apply_move, is_solved, grid_to_key, heuristic, extract_pat
 from algorithms._base import Node, make_result
 from queue import PriorityQueue
 
-def solve_gbfs(initial_grid):
+def solve_greedy(initial_grid):
     t0 = time.time()
     nodes = 0; max_dep = 0; counter = 0
 
     start = Node(initial_grid)
     frontier = PriorityQueue()
-    frontier.put((heuristic(initial_grid), counter, start))  # (h, tie, node)
+    frontier.put((heuristic(initial_grid), counter, start)) 
     in_frontier = {grid_to_key(initial_grid)}
     reached = set()
 
