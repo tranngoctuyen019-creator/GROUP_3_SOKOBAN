@@ -1,11 +1,11 @@
-# core/game.py
-# Logic Sokoban dùng chung cho tất cả thuật toán
-# KHÔNG import tkinter ở đây
+              
+                                                
+                            
 
 import copy
 import math
 from itertools import permutations
-# ── Ký hiệu ô ──────────────────────────────────────────────────
+                                                                 
 EMPTY            = 0
 WALL             = 1
 PLAYER           = 2
@@ -16,7 +16,7 @@ PLAYER_ON_GOAL   = 6
 PLAYER2          = 7
 PLAYER2_ON_GOAL  = 8
 
-# ── Hướng di chuyển ────────────────────────────────────────────
+                                                                 
 DIRECTIONS = {
     "UP":    (-1,  0),
     "DOWN":  ( 1,  0),
@@ -24,7 +24,7 @@ DIRECTIONS = {
     "RIGHT": ( 0,  1),
 }
 
-# ── Trạng thái ─────────────────────────────────────────────────
+                                                                 
 
 def find_player(grid, player_id=1):
     target = (PLAYER, PLAYER_ON_GOAL) if player_id == 1 else (PLAYER2, PLAYER2_ON_GOAL)
@@ -63,7 +63,7 @@ def grid_to_key(grid):
 def clone(grid):
     return copy.deepcopy(grid)
 
-# ── Di chuyển ──────────────────────────────────────────────────
+                                                                 
 
 def apply_move(grid, direction, player_id=1):
     """
@@ -180,7 +180,7 @@ def has_deadlock(grid):
 
     return False
 
-# ── Trích xuất đường đi từ node ────────────────────────────────
+                                                                 
 
 def extract_path(node):
     """

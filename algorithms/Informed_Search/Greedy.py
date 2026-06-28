@@ -36,6 +36,8 @@ def solve_greedy(initial_grid):
             if new_key not in reached and new_key not in in_frontier:
                 counter += 1
                 in_frontier.add(new_key)
-                frontier.put((heuristic(new_grid), counter, Node(new_grid, node, move, node.depth + 1)))
+                frontier.put((heuristic(new_grid), counter,
+                              Node(new_grid, node, move, node.depth + 1)))
 
     return make_result([], False, nodes, max_dep, time.time() - t0)
+
