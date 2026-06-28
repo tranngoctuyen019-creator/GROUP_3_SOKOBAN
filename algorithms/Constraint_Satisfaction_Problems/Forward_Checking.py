@@ -3,69 +3,58 @@ from algorithms.Constraint_Satisfaction_Problems.Helpers import (
     score_position, NUM_BOMBS, MIN_BLAST,
 )
 
+def forward_checking(domains, var, value, unassigned):
+    removed = {}
+    for other in unassigned:
+        if other == var:
+            continue
+        if value in domains[other]:
+            domains[other].remove(value)
+            removed.setdefault(other, []).append(value)
+        if not domains[other]: 
+            return None
+    return removed                
 
-def solve_forward_checking(grid):
-    """
-    Backtracking + forward checking with MRV heuristic.
-    After each assignment, shrink the domains of unassigned variables
-    and prune branches where a domain becomes empty.
-    """
-    candidates = floor_cells(grid)
-    target_walls = interior_walls(grid)
+def forward_check(assignment, domains, candidates, target_walls, grid, best):
+    if len(assignment) == NUM_BOMBS:
+        covered = set()
+        for pos in assignment.values():
+            covered |= (blast_cells(*pos, grid) & target_walls)
+        sc = len(covered)
+        if sc >= MIN_BLAST and sc > best["score"]:
+            best["score"] = sc
+            best["assignment"] = dict(assignment)
+        return
 
-    if len(candidates) < NUM_BOMBS:
-        return None
+    unassigned = [i for i in range(NUM_BOMBS) if i not in assignment]
+    var = min(unassigned, key=lambda i: len(domains[i]))
 
-    candidates.sort(key=lambda p: -score_position(p, grid, target_walls))
+    for value in list(domains[var]):
+        if value in assignment.values():
+            continue
 
-    domains = {i: list(candidates) for i in range(NUM_BOMBS)}
+        assignment[var] = value
+        removed = forward_checking(domains, var, value, unassigned)
 
-    best = {"assignment": None, "score": -1}
+        if removed is not None:
+            forward_check(assignment, domains, candidates, target_walls, grid, best)
 
-    def fc(var_idx, assignment):
-        if var_idx == NUM_BOMBS:
-            covered = set()
-            for pos in assignment.values():
-                covered |= (blast_cells(*pos, grid) & target_walls)
-            sc = len(covered)
-            if sc >= MIN_BLAST and sc > best["score"]:
-                best["score"] = sc
-                best["assignment"] = dict(assignment)
-            return
-
-        unassigned = [i for i in range(NUM_BOMBS) if i not in assignment]
-        # MRV: pick variable with smallest remaining domain
-        var = min(unassigned, key=lambda i: len(domains[i]))
-
-        for pos in list(domains[var]):
-            if pos in assignment.values():
-                continue
-
-            assignment[var] = pos
-
-            # Forward check: remove pos from peers' domains
-            removed = {}
-            failure = False
-            for other in unassigned:
-                if other == var:
-                    continue
-                if pos in domains[other]:
-                    domains[other].remove(pos)
-                    removed.setdefault(other, []).append(pos)
-                if not domains[other]:
-                    failure = True
-                    break
-
-            if not failure:
-                fc(var_idx + 1, assignment)
-
-            # Restore pruned values
             for other, vals in removed.items():
                 for v in vals:
                     if v not in domains[other]:
                         domains[other].append(v)
 
-            del assignment[var]
+        del assignment[var]
 
-    fc(0, {})
+def solve_forward_checking(grid):
+    candidates = floor_cells(grid)
+    target_walls = interior_walls(grid)
+
+    if len(candidates) < NUM_BOMBS: return None
+
+    candidates.sort(key=lambda p: -score_position(p, grid, target_walls))
+    domains = {i: list(candidates) for i in range(NUM_BOMBS)}
+    best = {"assignment": None, "score": -1}
+
+    forward_check({}, domains, candidates, target_walls, grid, best)
     return best["assignment"]

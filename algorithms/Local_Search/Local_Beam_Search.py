@@ -1,6 +1,3 @@
-# algorithms/local_search/local_beam.py
-# Local Beam Search
-
 import time
 from core.Game import apply_move, is_solved, grid_to_key, heuristic, extract_path, DIRECTIONS
 from algorithms._base import Node, make_result

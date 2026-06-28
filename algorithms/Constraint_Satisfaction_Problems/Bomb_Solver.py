@@ -16,11 +16,6 @@ BOMB      = 10
 BOMB_GOAL = 11
 EXPLODED  = 12
 
-
-# ---------------------------------------------------------------------------
-# Grid helpers
-# ---------------------------------------------------------------------------
-
 def make_bomb_grid(base_grid, bomb_starts):
     g = copy.deepcopy(base_grid)
     for r, row in enumerate(g):
@@ -35,7 +30,6 @@ def make_bomb_grid(base_grid, bomb_starts):
         if g[br][bc] == EMPTY:
             g[br][bc] = BOX
     return g
-
 
 def bfs_push_bomb(full_grid, active_bomb, other_bombs, target_pos):
     if active_bomb == target_pos:
@@ -74,7 +68,6 @@ def bfs_push_bomb(full_grid, active_bomb, other_bombs, target_pos):
             queue.append((ng, new_path))
     return []
 
-
 def bfs_player_to_safe(grid, bomb_positions):
     danger = set(bomb_positions)
     for r, c in bomb_positions:
@@ -105,7 +98,6 @@ def bfs_player_to_safe(grid, bomb_positions):
             queue.append((ng, new_path))
     return [grid]
 
-
 def apply_explosions(grid, bomb_positions):
     g = copy.deepcopy(grid)
     R, C = len(g), len(g[0])
@@ -117,11 +109,6 @@ def apply_explosions(grid, bomb_positions):
             if 0 <= nr < R and 0 <= nc < C and g[nr][nc] == WALL:
                 g[nr][nc] = EXPLODED
     return g
-
-
-# ---------------------------------------------------------------------------
-# Execution
-# ---------------------------------------------------------------------------
 
 def execute_assignment(initial_grid, assignment, t0):
     target_positions = [assignment[i] for i in range(NUM_BOMBS)]
@@ -199,10 +186,6 @@ def no_solution(t0):
     return make_result([], False, 0, 0, time.time() - t0,
                        {"mode": "bomb", "bomb_positions": [], "explosion_step": 0})
 
-
-# ---------------------------------------------------------------------------
-# Public entry points
-# ---------------------------------------------------------------------------
 
 def solve_bomb_backtracking(initial_grid):
     t0 = time.time()

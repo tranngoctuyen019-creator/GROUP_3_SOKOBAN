@@ -1,7 +1,3 @@
-                  
-                                           
-                                                    
-
 import tkinter as tk
 from core.Game import (WALL, PLAYER, BOX, GOAL,
                        BOX_ON_GOAL, PLAYER_ON_GOAL, PLAYER2,
@@ -89,8 +85,7 @@ class MapCanvas(tk.Canvas):
                 x1, y1 = c * sz, r * sz
                 x2, y2 = x1 + sz, y1 + sz
                 cx, cy  = x1 + sz // 2, y1 + sz // 2
-
-                                       
+              
                 if (r, c) in fog:
                     self.create_rectangle(x1, y1, x2, y2,
                         fill=THEME["fog"], outline=THEME["border"], width=1)
@@ -128,17 +123,12 @@ class MapCanvas(tk.Canvas):
                     self._draw_exploded(x1, y1, x2, y2, cx, cy, sz)
 
     def draw_belief(self, grid, visible_cells):
-        """
-        Vẽ bản đồ với fog of war.
-        visible_cells: set of (r,c) mà agent nhìn thấy được.
-        """
+        #visible_cells: set of (r,c) mà agent nhìn thấy được
         all_cells = {(r, c)
                      for r in range(len(grid))
                      for c in range(len(grid[0]))}
         fog = all_cells - visible_cells
-        self.draw(grid, fog_cells=fog)
-
-                                                                
+        self.draw(grid, fog_cells=fog)                                      
 
     def _draw_wall(self, x1, y1, x2, y2, sz):
         step = sz // 4
@@ -182,7 +172,6 @@ class MapCanvas(tk.Canvas):
             outline="#b9855a",
             width=2
         )
-
             
         self.create_arc(
             cx - h - 2, cy - sz // 3 - 2,
@@ -192,8 +181,7 @@ class MapCanvas(tk.Canvas):
             outline="#b67b00",
             width=2
         )
-
-              
+     
         self.create_rectangle(
             cx - h, cy - sz // 9,
             cx + h, cy + sz // 4,
@@ -201,7 +189,6 @@ class MapCanvas(tk.Canvas):
             outline="#2f72b7",
             width=2
         )
-
              
         self.create_line(
             cx - h, cy,
@@ -215,8 +202,7 @@ class MapCanvas(tk.Canvas):
             fill=THEME["green"],
             width=3
         )
-
-              
+     
         self.create_line(
             cx - h // 2, cy + sz // 4,
             cx - h // 2, cy + sz // 2 - 2,
@@ -242,7 +228,6 @@ class MapCanvas(tk.Canvas):
             cx + sz // 10 + eye, cy - sz // 4 + eye * 2,
             fill="white", outline=""
         )
-
                  
         self.create_oval(
             cx - sz // 10 - 1, cy - sz // 4 + 1,

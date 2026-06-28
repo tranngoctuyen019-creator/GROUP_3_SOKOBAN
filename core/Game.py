@@ -1,7 +1,3 @@
-              
-                                                
-                            
-
 import copy
 import math
 from itertools import permutations
@@ -22,9 +18,7 @@ DIRECTIONS = {
     "DOWN":  ( 1,  0),
     "LEFT":  ( 0, -1),
     "RIGHT": ( 0,  1),
-}
-
-                                                                 
+}                                        
 
 def find_player(grid, player_id=1):
     target = (PLAYER, PLAYER_ON_GOAL) if player_id == 1 else (PLAYER2, PLAYER2_ON_GOAL)
@@ -33,10 +27,6 @@ def find_player(grid, player_id=1):
             if v in target:
                 return r, c
     return None
-
-def find_players(grid):
-    return find_player(grid, 1), find_player(grid, 2)
-
 
 def find_boxes(grid):
     boxes = []
@@ -62,9 +52,7 @@ def grid_to_key(grid):
 
 def clone(grid):
     return copy.deepcopy(grid)
-
-                                                                 
-
+                                                               
 def apply_move(grid, direction, player_id=1):
     """
     Áp dụng di chuyển của người chơi chỉ định.
@@ -112,9 +100,6 @@ def apply_move(grid, direction, player_id=1):
         grid[nr][nc] = PLAYER2_ON_GOAL if dest == GOAL else PLAYER2
 
     return grid
-
-def get_valid_moves(grid, player_id=1):
-    return [d for d in DIRECTIONS if apply_move(grid, d, player_id) is not None]
 
 def get_push_positions(box):
     r, c = box
@@ -170,7 +155,6 @@ def heuristic(grid):
 
     return box_goal_cost + 0.1 * player_push_cost
 
-
 def has_deadlock(grid):
     goals = find_goals(grid)
     for r, row in enumerate(grid):
@@ -179,8 +163,6 @@ def has_deadlock(grid):
                 return True
 
     return False
-
-                                                                 
 
 def extract_path(node):
     """

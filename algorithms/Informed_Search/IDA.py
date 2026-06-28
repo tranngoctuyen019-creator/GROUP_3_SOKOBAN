@@ -1,6 +1,3 @@
-# algorithms/informed/idastar.py
-# Iterative Deepening A*
-
 import time
 from core.Game import (
     apply_move,

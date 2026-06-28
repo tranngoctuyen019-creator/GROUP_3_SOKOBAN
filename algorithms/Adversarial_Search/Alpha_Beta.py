@@ -4,7 +4,6 @@ from core.Game import (
     apply_move,
     clone,
     find_boxes,
-    grid_to_key,
     heuristic,
     is_solved,
     DIRECTIONS,

@@ -7,10 +7,6 @@ from algorithms.Constraint_Satisfaction_Problems.Helpers import (
 
 
 def count_conflicts(var_idx, pos, assignment, grid, target_walls):
-    """
-    Conflict score: penalise duplicate positions heavily,
-    reward wall coverage.
-    """
     conflicts = sum(
         1 for other, other_pos in assignment.items()
         if other != var_idx and other_pos == pos
@@ -24,10 +20,6 @@ def count_conflicts(var_idx, pos, assignment, grid, target_walls):
 
 
 def solve_min_conflicts(grid, max_steps: int = 1000):
-    """
-    Min-conflicts local search: start from a random assignment and
-    iteratively repair the most-conflicted variable.
-    """
     candidates = floor_cells(grid)
     target_walls = interior_walls(grid)
 
@@ -58,7 +50,6 @@ def solve_min_conflicts(grid, max_steps: int = 1000):
             if step > 50:
                 break
 
-        # Collect conflicted variables (duplicates), or use all
         conflicted = [
             i for i in range(NUM_BOMBS)
             if any(assignment[j] == assignment[i] for j in range(NUM_BOMBS) if j != i)
@@ -68,7 +59,6 @@ def solve_min_conflicts(grid, max_steps: int = 1000):
 
         var = random.choice(conflicted)
 
-        # Pick value with minimum conflict score
         min_conf = None
         best_vals = []
         for pos in candidates:
@@ -87,7 +77,6 @@ def solve_min_conflicts(grid, max_steps: int = 1000):
                 best["score"] = sc
                 best["assignment"] = dict(assignment)
 
-    # Fallback: greedy placement if local search failed
     if best["assignment"] is None:
         candidates.sort(key=lambda p: -score_position(p, grid, target_walls))
         used: set = set()

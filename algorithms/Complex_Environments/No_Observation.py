@@ -1,5 +1,3 @@
-# algorithms/belief_state/no_observation.py
-
 import time
 from collections import deque
 from core.Game import apply_move, is_solved, grid_to_key, find_player, DIRECTIONS, EMPTY, PLAYER

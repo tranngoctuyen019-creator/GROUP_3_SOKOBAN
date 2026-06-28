@@ -1,6 +1,3 @@
-# algorithms/informed/astar.py
-# A* Search
-
 import time
 import heapq
 from core.Game import apply_move, is_solved, grid_to_key, heuristic, extract_path, DIRECTIONS

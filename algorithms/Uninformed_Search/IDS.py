@@ -1,6 +1,3 @@
-# algorithms/uninformed/ids.py
-# Iterative Deepening Search
-
 import time
 from core.Game import apply_move, is_solved, grid_to_key, extract_path, DIRECTIONS
 from algorithms._base import Node, make_result

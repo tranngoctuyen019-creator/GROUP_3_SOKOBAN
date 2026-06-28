@@ -1,5 +1,5 @@
 import time
-from core.Game import apply_move, is_solved, grid_to_key, extract_path, DIRECTIONS, heuristic
+from core.Game import apply_move, is_solved, grid_to_key, DIRECTIONS, heuristic
 from algorithms._base import make_result
 
 

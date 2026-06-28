@@ -4,7 +4,6 @@ import heapq
 from core.Game import (
     apply_move,
     extract_path,
-    find_boxes,
     grid_to_key,
     heuristic,
     is_solved,

@@ -1,6 +1,3 @@
-# algorithms/_base.py
-# Shared base classes and helpers for all algorithm modules
-
 class Node:
     __slots__ = ("grid", "parent", "move", "depth", "cost")
 

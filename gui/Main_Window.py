@@ -1,11 +1,9 @@
-                    
-
 import tkinter as tk
 from tkinter import ttk
 import copy
 
-from core.Renderer import MapCanvas, THEME, CELL
-from core.Game import find_player, DIRECTIONS
+from core.Renderer import MapCanvas, THEME
+from core.Game import find_player
 
 from algorithms.Uninformed_Search   import solve_bfs , solve_dfs, solve_ids
 from algorithms.Informed_Search     import solve_idastar, solve_greedy , solve_astar
@@ -78,7 +76,7 @@ ALGO_GROUPS = [
     {"name": "Informed Search",   "color": "#74b9ff",
      "algos": [("IDA*", solve_idastar), ("Greedy", solve_greedy), ("A*", solve_astar)]},
     {"name": "Local Search",      "color": "#f5a623",
-     "algos": [("Hill Climbing", solve_hill_climbing),
+     "algos": [("Simple Hill Climbing", solve_hill_climbing),
                ("Simulated Annealing", solve_simulated_annealing),
                ("Local Beam Search", solve_local_beam_search)]},
     {"name": "CSP",               "color": "#a29bfe",
@@ -90,9 +88,9 @@ ALGO_GROUPS = [
     "algos": [("Alpha-Beta", solve_alphabeta),
                 ("Minimax", solve_minimax),
                ("Expectimax", solve_expectimax)]},
-    {"name": "Belief State",      "color": "#fd79a8",
+    {"name": "Complex Environments",      "color": "#fd79a8",
      "algos": [("Partial Observation", solve_partial_observation),
-                ("AND-OR Graph", solve_and_or), ("Sensorless", solve_no_observation)]}
+                ("AND-OR Graph", solve_and_or), ("No Observation", solve_no_observation)]}
 ]
 
                   
@@ -105,7 +103,7 @@ MOVE_LABEL = {"UP": "lên", "DOWN": "xuống", "LEFT": "trái", "RIGHT": "phải
 class MainWindow(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Sokoban – AI Solver")
+        self.title("Sokoban – GROUP 3")
         self.configure(bg=THEME["bg"])
         self.resizable(True, True)
         self.state("zoomed")
@@ -184,7 +182,7 @@ class MainWindow(tk.Tk):
         hdr = tk.Frame(self, bg=THEME["header"], pady=10, padx=20)
         hdr.pack(fill="x")
 
-        tk.Label(hdr, text="🎮  SOKOBAN – AI SOLVER",
+        tk.Label(hdr, text="   SOKOBAN – GROUP 3",
             font=("Consolas", 14, "bold"),
             fg=THEME["accent"], bg=THEME["header"]).pack(side="left", padx=(0, 24))
 
@@ -251,16 +249,14 @@ class MainWindow(tk.Tk):
                 activeforeground=THEME["accent"],
                 relief="flat", cursor="hand2").pack(side="left", padx=8)
 
+    #Xây panel OR node + 2 panel AND node con
     def _build_and_panels(self, parent):
-        """Xây panel OR node + 2 panel AND node con."""
         MINI = 22                 
         dummy = MAP_OPTIONS[0]["grid"]
-
-                                                               
+                             
         _hidden = tk.Frame(parent)
         self._or_canvas = MapCanvas(_hidden, dummy, cell_size=MINI)
         self._lbl_or = tk.Label(_hidden)
-
                                                                        
         and1_wrap = tk.Frame(parent, bg=THEME["panel"],
                              padx=6, pady=6,
@@ -302,30 +298,22 @@ class MainWindow(tk.Tk):
         self._lbl_and2.pack(anchor="w", pady=(3, 0))
 
     def _update_and_panels(self):
-        """Cập nhật OR node + 2 AND node theo bước hiện tại."""
         if not self._result:
             return
         branches = self._result.get("and_branches", [])
-        if not branches:
-            return
+        if not branches: return
 
         idx = min(self._step, len(branches) - 1)
         branch = branches[idx]
-
                                                         
         if len(branch) == 4:
             or_grid, and1_grid, and2_grid, action = branch
-        else:
-                                                                
+        else:                                  
             and1_grid, and2_grid, action = branch
             or_grid = None
-
-
-                                                              
+                                                 
         if and1_grid is not None:
-            self._and1_canvas.draw(and1_grid)
-
-                                                                      
+            self._and1_canvas.draw(and1_grid)                                                       
         if and2_grid is not None:
             self._and2_canvas.draw(and2_grid)
         elif and1_grid is not None:
@@ -339,7 +327,6 @@ class MainWindow(tk.Tk):
         self._canvas.pack()
 
     def _build_legend(self, parent):
-                                
         tk.Label(parent, text="CHÚ THÍCH",
             font=("Consolas", 8, "bold"),
             fg=THEME["dim"], bg=THEME["bg"]).pack(anchor="w", pady=(0, 4))
@@ -407,7 +394,7 @@ class MainWindow(tk.Tk):
         ctrl = tk.Frame(parent, bg=THEME["bg"])
         ctrl.pack(fill="x", pady=(4, 0))
 
-        self._btn_solve = btn(ctrl, "🔍  Giải thuật toán",
+        self._btn_solve = btn(ctrl, "Giải thuật toán",
             self._solve, bg="#c0392b", fg="white")
         self._btn_solve.pack(fill="x", pady=(0, 4))
 
@@ -483,14 +470,12 @@ class MainWindow(tk.Tk):
             pady=5, padx=10,
             command=lambda: self._switch_tab("history"))
         self._btn_tab_hist.pack(side="left", padx=(4, 0))
-
                                                                       
         stack = tk.Frame(parent, bg=THEME["panel"])
         stack.pack(fill="both", expand=True)
         stack.rowconfigure(0, weight=1)
         stack.columnconfigure(0, weight=1)
 
-                         
         self._tab_log_frame = tk.Frame(stack, bg=THEME["panel"])
         self._tab_log_frame.grid(row=0, column=0, sticky="nsew")
 
@@ -504,7 +489,6 @@ class MainWindow(tk.Tk):
             yscrollcommand=sb.set, state="disabled")
         self._log.pack(fill="both", expand=True)
         sb.config(command=self._log.yview)
-
                              
         self._tab_hist_frame = tk.Frame(stack, bg=THEME["panel"])
         self._tab_hist_frame.grid(row=0, column=0, sticky="nsew")
@@ -543,7 +527,6 @@ class MainWindow(tk.Tk):
         self._hist_tree.heading("steps", text="Số bước")
         self._hist_tree.heading("found", text="Lời giải")
         
-
         self._hist_tree.column("algo",  width=130, anchor="w")
         self._hist_tree.column("map",   width=80,  anchor="center")
         self._hist_tree.column("time",  width=80,  anchor="center")
@@ -552,15 +535,13 @@ class MainWindow(tk.Tk):
 
         self._hist_tree.pack(fill="both", expand=True)
 
-        btn_clear = tk.Button(self._tab_hist_frame, text="🗑  Xóa lịch sử",
+        btn_clear = tk.Button(self._tab_hist_frame, text="Xóa lịch sử",
             font=("Consolas", 8, "bold"),
             bg=THEME["header"], fg=THEME["dim"],
             activebackground=THEME["accent"], activeforeground=THEME["bg"],
             relief="flat", cursor="hand2", pady=4,
             command=self._clear_history)
-        btn_clear.pack(pady=(6, 0))
-
-                                      
+        btn_clear.pack(pady=(6, 0))   
         self._switch_tab("log")
 
     def _switch_tab(self, tab):
@@ -581,8 +562,7 @@ class MainWindow(tk.Tk):
 
     def _add_history(self, algo_name, map_label, time_elapsed, steps, found, winner=None, mode=None):
         found_str = "✅ Có" if found else "❌ Không"
-                                                                                     
-                                                                         
+                                                                                                                           
         if mode and str(mode).startswith("adversarial"):
             time_str = f"{time_elapsed}s" if time_elapsed < 10 else f"{time_elapsed:.1f}s"
         else:
@@ -596,7 +576,6 @@ class MainWindow(tk.Tk):
         for item in self._hist_tree.get_children():
             self._hist_tree.delete(item)
 
-                   
     def _divider(self, parent):
         tk.Frame(parent, bg=THEME["border"], height=1).pack(fill="x", pady=5)
 
@@ -673,9 +652,9 @@ class MainWindow(tk.Tk):
                                                     
         grp_name = ALGO_GROUPS[self._grp_idx]["name"] if hasattr(self, "_grp_idx") else ""
         if grp_name == "CSP":
-            self._log_write("💣  Chế độ Bom Nổ: CSP tìm vị trí đặt Bom,", "#a29bfe")
-            self._log_write("    BFS đẩy Bom đến vị trí, Bom nổ phá tường!", "#a29bfe")
-        self._log_write("Nhấn 🔍 Giải để bắt đầu.", THEME["dim"])
+            self._log_write("Chế độ Bom Nổ: CSP tìm vị trí đặt Bom,", "#a29bfe")
+            self._log_write("BFS đẩy Bom đến vị trí, Bom nổ phá tường!", "#a29bfe")
+        self._log_write("Nhấn Giải để bắt đầu.", THEME["dim"])
         self._result = None
         self._step   = 0
         self._playing = False
@@ -720,7 +699,6 @@ class MainWindow(tk.Tk):
         self._log.config(state="disabled")
 
     def _build_bomb_log(self, r):
-        """Bước đi cho chế độ Bom Nổ."""
         self._log_clear()
         bomb_positions = r.get("bomb_positions", [])
         exp_step = r.get("explosion_step", 0)
@@ -736,14 +714,12 @@ class MainWindow(tk.Tk):
         self._log_write(f"Di chuyển an toàn: {total - exp_step - 1} bước", THEME["blue"])
         self._log_write(f"Tổng: {total} bước + 1 vụ nổ", THEME["text"])
         self._log_write("─" * 36, THEME["dim"])
-        self._log_write("⚠️  Bán kính nổ: 8 ô xung quanh mỗi Bom", THEME["gold"])
-        self._log_write("✅  Nhân vật đã di chuyển ra khỏi vùng nổ", THEME["green"])
+        self._log_write("Bán kính nổ: 8 ô xung quanh mỗi Bom", THEME["gold"])
+        self._log_write("Nhân vật đã di chuyển ra khỏi vùng nổ", THEME["green"])
 
         self._log.config(state="normal")
         self._log.see("1.0")
-        self._log.config(state="disabled")
-
-                                                                 
+        self._log.config(state="disabled")                                            
 
     def _on_map_change(self):
         self._map_idx = self._map_var.get()
@@ -760,9 +736,7 @@ class MainWindow(tk.Tk):
 
     def _on_speed_change(self, _=None):
         self._speed = self._speed_var.get()
-        self._lbl_speed.config(text=f"{self._speed} ms")
-
-                                                                 
+        self._lbl_speed.config(text=f"{self._speed} ms")                                                               
 
     def _solve(self):
         self._playing = False

@@ -1,7 +1,7 @@
 import time
 import random
 import math
-from core.Game import (apply_move, is_solved, heuristic, DIRECTIONS, grid_to_key, has_deadlock)
+from core.Game import apply_move, is_solved, heuristic, DIRECTIONS, grid_to_key, has_deadlock
 from algorithms._base import make_result
 
 def solve_simulated_annealing(

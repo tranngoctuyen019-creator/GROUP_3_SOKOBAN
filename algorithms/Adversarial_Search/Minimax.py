@@ -3,8 +3,6 @@ import time
 from core.Game import (
     apply_move,
     clone,
-    find_boxes,
-    grid_to_key,
     heuristic,
     is_solved,
     DIRECTIONS,
@@ -14,7 +12,6 @@ from core.Game import (
 from algorithms._base import Node, make_result
 from algorithms.Adversarial_Search.Astar_Adversarial import solve_astar_adversarial
 
-
 def _is_adversarial_map(grid):
     for row in grid:
         for v in row:
@@ -22,15 +19,7 @@ def _is_adversarial_map(grid):
                 return True
     return False
 
-
 def solve_minimax(initial_grid, max_depth=6):
-    """
-    Minimax-based adversarial play.
-
-    - Robot 1 uses minimax search (maximizing).
-    - Robot 2 uses adversarial A* to pick its move (minimizing).
-    - Only runs on maps that contain PLAYER2; otherwise returns no-solution.
-    """
     t0 = time.time()
     if not _is_adversarial_map(initial_grid):
         return make_result([], False, 0, 0, time.time() - t0)
@@ -66,14 +55,10 @@ def solve_minimax(initial_grid, max_depth=6):
                     best_move = move
             return best_value, best_move
         else:
-            # For the minimizing player: evaluate all legal opponent moves
-            # (standard minimax). Use A* to prioritize the most-likely move
-            # but still search all branches so the search can find a decisive winner.
             moves = next_states(grid, 2)
             if not moves:
                 return evaluate(grid), None
-
-            # Try to get A* preferred move and put it first in the list
+            
             astar_pref = None
             try:
                 result = solve_astar_adversarial(grid, player_id=2)
@@ -82,7 +67,6 @@ def solve_minimax(initial_grid, max_depth=6):
             except Exception:
                 astar_pref = None
 
-            # Reorder moves so A* move (if any) is considered first
             if astar_pref is not None:
                 ordered = []
                 for m, child in moves:
@@ -126,7 +110,6 @@ def solve_minimax(initial_grid, max_depth=6):
         else:
             result = solve_astar_adversarial(current, player_id=2)
             if not result.get("path") or len(result["path"]) < 2:
-                # fallback to any legal move
                 moves = next_states(current, 2)
                 if not moves:
                     break
