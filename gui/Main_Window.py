@@ -11,7 +11,7 @@ from algorithms.Uninformed_Search   import solve_bfs , solve_dfs#, solve_ucs
 from algorithms.Informed_Search     import solve_idastar, solve_greedy #, solve_astar
 from algorithms.Local_Search        import solve_hill_climbing , solve_simulated_annealing#, solve_local_beam
 from algorithms.Constraint_Satisfaction_Problems     import solve_backtracking , solve_bomb_forward_checking#, solve_bomb_min_conflicts
-from algorithms.Adversarial_Search      import  solve_expectimax#,solve_alphabeta, solve_minimax
+from algorithms.Adversarial_Search      import  solve_expectimax,solve_alphabeta#, solve_minimax
 from algorithms.Complex_Environments    import solve_partial_observation, solve_and_or#, solve_no_observation
 
 MAP_OPTIONS = [
@@ -84,7 +84,7 @@ ALGO_GROUPS = [
                ("Forward Checking", solve_bomb_forward_checking),]},
                #("Min-Conflicts", solve_min_conflicts)]},
     {"name": "Adversarial Search","color": "#e94560",
-    "algos": [#("Alpha-Beta", solve_alphabeta),]},
+    "algos": [("Alpha-Beta", solve_alphabeta),
                 #("Minimax", solve_minimax),
                ("Expectimax", solve_expectimax)]},
     {"name": "Belief State",      "color": "#fd79a8",
