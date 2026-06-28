@@ -9,7 +9,7 @@ from core.Game import find_player, DIRECTIONS
 
 from algorithms.Uninformed_Search   import solve_bfs , solve_dfs#, solve_ucs
 from algorithms.Informed_Search     import solve_idastar, solve_greedy #, solve_astar
-from algorithms.Local_Search        import solve_hill_climbing #, solve_simulated_annealing, solve_local_beam
+from algorithms.Local_Search        import solve_hill_climbing , solve_simulated_annealing#, solve_local_beam
 from algorithms.Constraint_Satisfaction_Problems     import solve_backtracking , solve_bomb_forward_checking#, solve_bomb_min_conflicts
 #from algorithms.Adversarial_Search      import  solve_alphabeta#, solve_minimax, solve_expectimax
 from algorithms.Complex_Environments    import solve_partial_observation, solve_and_or#, solve_no_observation
@@ -62,8 +62,8 @@ ALGO_GROUPS = [
     {"name": "Informed Search",   "color": "#74b9ff",
      "algos": [("IDA*", solve_idastar), ("Greedy", solve_greedy)]},#, ("A*", solve_astar)]},
     {"name": "Local Search",      "color": "#f5a623",
-     "algos": [("Hill Climbing", solve_hill_climbing),]},
-               #("Simulated Annealing", solve_simulated_annealing),
+     "algos": [("Hill Climbing", solve_hill_climbing),
+               ("Simulated Annealing", solve_simulated_annealing),]},
                #("Local Beam Search", solve_local_beam)]},
     {"name": "CSP",               "color": "#a29bfe",
      "algos": [("Backtracking", solve_backtracking),
