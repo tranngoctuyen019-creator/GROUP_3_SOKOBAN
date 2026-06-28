@@ -3,7 +3,8 @@
 # KHÔNG import tkinter ở đây
 
 import copy
-
+import math
+from itertools import permutations
 # ── Ký hiệu ô ──────────────────────────────────────────────────
 EMPTY          = 0
 WALL           = 1
@@ -97,42 +98,68 @@ def apply_move(grid, direction):
 def get_valid_moves(grid):
     return [d for d in DIRECTIONS if apply_move(grid, d) is not None]
 
-# ── Heuristic ──────────────────────────────────────────────────
+def get_push_positions(box):
+    r, c = box
+    return [
+        (r + 1, c),
+        (r - 1, c),
+        (r, c + 1),
+        (r, c - 1),
+    ]
 
 def manhattan(a, b):
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
+def is_corner_deadlock(grid, box, goals):
+    if box in goals:
+        return False
+
+    r, c = box
+    R, C = len(grid), len(grid[0])
+
+    wall_up    = (r == 0) or (grid[r-1][c] == WALL)
+    wall_down  = (r == R-1) or (grid[r+1][c] == WALL)
+    wall_left  = (c == 0) or (grid[r][c-1] == WALL)
+    wall_right = (c == C-1) or (grid[r][c+1] == WALL)
+
+    return (wall_up or wall_down) and (wall_left or wall_right)
+
 def heuristic(grid):
-    """
-    Tổng khoảng cách Manhattan từ mỗi thùng đến đích gần nhất.
-    Dùng cho: GBFS, A*, IDA*, Hill Climbing, Beam Search...
-    """
     boxes = find_boxes(grid)
     goals = find_goals(grid)
-    if not boxes:
-        return 0
-    total = 0
-    for box in boxes:
-        total += min(manhattan(box, g) for g in goals)
-    return total
+    player = find_player(grid)
 
-# ── Deadlock detection (dùng cho CSP) ─────────────────────────
+    if not boxes: return 0
+    for b in boxes:
+        if is_corner_deadlock(grid, b, goals): return float('inf')
 
-def is_corner_deadlock(grid, r, c):
-    if grid[r][c] == BOX_ON_GOAL:
-        return False
-    R, C = len(grid), len(grid[0])
-    wall_v = (r == 0 or grid[r-1][c] == WALL) or \
-             (r == R-1 or grid[r+1][c] == WALL)
-    wall_h = (c == 0 or grid[r][c-1] == WALL) or \
-             (c == C-1 or grid[r][c+1] == WALL)
-    return wall_v and wall_h
+    box_goal_cost = float('inf')
+
+    for perm in permutations(goals, len(boxes)):
+        cost = 0
+        for b, g in zip(boxes, perm):
+            cost += manhattan(b, g)
+        box_goal_cost = min(box_goal_cost, cost)
+
+    player_push_cost = math.inf
+
+    for b in boxes:
+        for p in get_push_positions(b):
+            player_push_cost = min(player_push_cost, manhattan(player, p))
+
+    if player_push_cost == math.inf:
+        player_push_cost = 0
+
+    return box_goal_cost + 0.1 * player_push_cost
+
 
 def has_deadlock(grid):
+    goals = find_goals(grid)
     for r, row in enumerate(grid):
         for c, v in enumerate(row):
-            if v == BOX and is_corner_deadlock(grid, r, c):
+            if v == BOX and is_corner_deadlock(grid, (r, c), goals):
                 return True
+
     return False
 
 # ── Trích xuất đường đi từ node ────────────────────────────────
