@@ -779,6 +779,12 @@ class MainWindow(tk.Tk):
         self._result = r
         self._step   = 0
 
+        is_and_or = (name == "AND-OR Graph")
+        if is_and_or:
+            self._and_panel_frame.pack(side="left", anchor="n", padx=(14, 0))
+        else:
+            self._and_panel_frame.pack_forget()
+
         if r["found"]:
             if r.get("mode") == "bomb":
                 self._lbl_status.config(text="💣  Bom đã được đặt! Sẵn sàng nổ!", fg=color)
@@ -824,6 +830,9 @@ class MainWindow(tk.Tk):
             self._canvas.draw_belief(grid, vis_list[self._step])
         else:
             self._canvas.draw(grid)
+
+        if self._result.get("and_branches"):
+            self._update_and_panels()
         total = self._result["solution_len"]
         # Hiển thị nhãn đặc biệt ở bước nổ
         if self._result.get("mode") == "bomb":
@@ -881,5 +890,6 @@ class MainWindow(tk.Tk):
         self._playing = False
         self._result  = None
         self._step    = 0
+        self._and_panel_frame.pack_forget()
         self._btn_auto.config(text="▶▶  Phát tự động", bg="#1a5c40")
         self._load_map()
