@@ -37,6 +37,10 @@ def solve_greedy(initial_grid):
                 counter += 1
                 in_frontier.add(new_key)
                 frontier.put((heuristic(new_grid), counter,
+<<<<<<< HEAD
                               Node(new_grid, node, move, node.depth + 1)))
 
     return make_result([], False, nodes, max_dep, time.time() - t0)
+=======
+                              Node(new_grid, node, move, node.depth + 1)))
+>>>>>>> 5b2449288be8d57fa581c5eacb5622cd6c6732bb
