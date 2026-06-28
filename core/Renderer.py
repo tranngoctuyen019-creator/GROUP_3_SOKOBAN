@@ -1,18 +1,18 @@
-# core/renderer.py
-# MapCanvas dùng chung cho tất cả panel GUI
-# Chỉ chịu trách nhiệm VẼ, không có logic thuật toán
+                  
+                                           
+                                                    
 
 import tkinter as tk
 from core.Game import (WALL, PLAYER, BOX, GOAL,
                        BOX_ON_GOAL, PLAYER_ON_GOAL, PLAYER2,
                        PLAYER2_ON_GOAL, EMPTY)
 
-# Ký hiệu bom (từ bomb_solver)
+                              
 BOMB      = 10
 BOMB_GOAL = 11
 EXPLODED  = 12
 
-# ── Màu sắc giao diện ─────────────────────────────────────────
+                                                                
 THEME = {
     "bg":        "#1a1a2e",
     "panel":     "#16213e",
@@ -49,7 +49,7 @@ TILE_BG = {
     EXPLODED:      "#ff6600",
 }
 
-CELL = 56   # pixel mỗi ô — thay đổi ở đây để scale toàn bộ
+CELL = 56                                                  
 
 
 class MapCanvas(tk.Canvas):
@@ -76,7 +76,7 @@ class MapCanvas(tk.Canvas):
         self.cell_size = cell_size
         self.draw(grid, fog_cells)
 
-    # ── API công khai ──────────────────────────────────────────
+                                                                 
 
     def draw(self, grid, fog_cells=None):
         """Vẽ lại toàn bộ bản đồ."""
@@ -90,7 +90,7 @@ class MapCanvas(tk.Canvas):
                 x2, y2 = x1 + sz, y1 + sz
                 cx, cy  = x1 + sz // 2, y1 + sz // 2
 
-                # Ô bị che (fog of war)
+                                       
                 if (r, c) in fog:
                     self.create_rectangle(x1, y1, x2, y2,
                         fill=THEME["fog"], outline=THEME["border"], width=1)
@@ -138,7 +138,7 @@ class MapCanvas(tk.Canvas):
         fog = all_cells - visible_cells
         self.draw(grid, fog_cells=fog)
 
-    # ── Vẽ từng loại ô ────────────────────────────────────────
+                                                                
 
     def _draw_wall(self, x1, y1, x2, y2, sz):
         step = sz // 4
@@ -174,7 +174,7 @@ class MapCanvas(tk.Canvas):
         color = "#115A32" if player in (PLAYER, PLAYER_ON_GOAL) else "#7f3fbf"
         hat_color = "#f1c40f" if player in (PLAYER, PLAYER_ON_GOAL) else "#d57eff"
 
-        # Đầu
+             
         self.create_oval(
             cx - h, cy - sz // 3,
             cx + h, cy - sz // 8,
@@ -183,7 +183,7 @@ class MapCanvas(tk.Canvas):
             width=2
         )
 
-        # Mũ
+            
         self.create_arc(
             cx - h - 2, cy - sz // 3 - 2,
             cx + h + 2, cy - sz // 8,
@@ -193,7 +193,7 @@ class MapCanvas(tk.Canvas):
             width=2
         )
 
-        # Thân
+              
         self.create_rectangle(
             cx - h, cy - sz // 9,
             cx + h, cy + sz // 4,
@@ -202,7 +202,7 @@ class MapCanvas(tk.Canvas):
             width=2
         )
 
-        # Tay
+             
         self.create_line(
             cx - h, cy,
             cx - h - sz // 10, cy + sz // 12,
@@ -216,7 +216,7 @@ class MapCanvas(tk.Canvas):
             width=3
         )
 
-        # Chân
+              
         self.create_line(
             cx - h // 2, cy + sz // 4,
             cx - h // 2, cy + sz // 2 - 2,
@@ -230,7 +230,7 @@ class MapCanvas(tk.Canvas):
             width=3
         )
 
-        # Mắt
+             
         eye = max(2, sz // 20)
         self.create_oval(
             cx - sz // 10 - eye, cy - sz // 4,
@@ -243,7 +243,7 @@ class MapCanvas(tk.Canvas):
             fill="white", outline=""
         )
 
-        # Đồng tử
+                 
         self.create_oval(
             cx - sz // 10 - 1, cy - sz // 4 + 1,
             cx - sz // 10 + 1, cy - sz // 4 + 3,
@@ -258,16 +258,16 @@ class MapCanvas(tk.Canvas):
     def _draw_bomb(self, cx, cy, sz, activated=False):
         """Vẽ trái Bom (bom)."""
         r = sz // 3
-        # Thân bom
+                  
         color = "#cc2200" if activated else "#9b59b6"
         outline = "#ff4444" if activated else "#6c3483"
         self.create_oval(cx - r, cy - r + 4, cx + r, cy + r + 4,
             fill=color, outline=outline, width=2)
-        # Ngòi bom
+                  
         fuse_col = "#f39c12" if activated else "#95a5a6"
         self.create_line(cx, cy - r + 4, cx + r // 2, cy - r - 4,
             fill=fuse_col, width=2)
-        # Dấu bom
+                 
         self.create_text(cx, cy + 4, text="💣" if activated else "🔴",
             font=("Arial", int(sz * 0.30)))
 

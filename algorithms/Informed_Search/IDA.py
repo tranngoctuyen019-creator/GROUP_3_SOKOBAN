@@ -13,7 +13,7 @@ from core.Game import (
 from algorithms._base import Node, make_result
 
 
-def solve_idastar(initial_grid, max_nodes=40000, max_threshold=1000):
+def solve_idastar(initial_grid, max_nodes=50000, max_threshold=1000):
     """
     Iterative Deepening A*.
     """

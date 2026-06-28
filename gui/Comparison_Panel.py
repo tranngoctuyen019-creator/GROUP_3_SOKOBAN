@@ -1,10 +1,10 @@
-# gui/comparison_panel.py
-# Thanh so sánh nhỏ hiển thị dưới mỗi nhóm thuật toán
+                         
+                                                     
 
 import tkinter as tk
 from core.Renderer import THEME
 
-BAR_MAX = 320   # pixel chiều rộng tối đa của bar
+BAR_MAX = 320                                    
 
 
 class ComparisonBar(tk.Frame):
@@ -24,8 +24,8 @@ class ComparisonBar(tk.Frame):
         super().__init__(parent, bg=THEME["panel"], padx=12, pady=8, **kw)
         self.algo_names = [name for name, _ in algo_list]
         self.accent     = accent_color
-        self.bars       = {}   # (algo_name, metric) -> Frame fill
-        self.lbls       = {}   # (algo_name, metric) -> Label value
+        self.bars       = {}                                      
+        self.lbls       = {}                                       
         self._build()
 
     def _build(self):
@@ -34,7 +34,7 @@ class ComparisonBar(tk.Frame):
             fg=THEME["dim"], bg=THEME["panel"]).grid(
             row=0, column=0, sticky="w", pady=(0, 4))
 
-        # Header cột
+                    
         for j, (_, metric_name, color) in enumerate(self.METRICS):
             tk.Label(self, text=metric_name,
                 font=("Consolas", 8, "bold"),
@@ -99,10 +99,10 @@ class ComparisonBar(tk.Frame):
                 else:
                     lbl.config(text=f"{v:,}")
 
-        # Nhận xét tự động
+                          
         valid = [(i, r) for i, r in enumerate(results) if r and r.get("found")]
         if len(valid) == 3:
-            # So sánh node duyệt
+                                
             node_vals = [(r["nodes_visited"], self.algo_names[i]) for i, r in valid]
             node_vals.sort()
             best  = node_vals[0][1]

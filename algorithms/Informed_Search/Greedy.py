@@ -40,3 +40,4 @@ def solve_greedy(initial_grid):
                               Node(new_grid, node, move, node.depth + 1)))
 
     return make_result([], False, nodes, max_dep, time.time() - t0)
+
