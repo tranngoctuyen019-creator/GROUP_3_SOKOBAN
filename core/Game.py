@@ -5,13 +5,15 @@
 import copy
 
 # ── Ký hiệu ô ──────────────────────────────────────────────────
-EMPTY          = 0
-WALL           = 1
-PLAYER         = 2
-BOX            = 3
-GOAL           = 4
-BOX_ON_GOAL    = 5
-PLAYER_ON_GOAL = 6
+EMPTY            = 0
+WALL             = 1
+PLAYER           = 2
+BOX              = 3
+GOAL             = 4
+BOX_ON_GOAL      = 5
+PLAYER_ON_GOAL   = 6
+PLAYER2          = 7
+PLAYER2_ON_GOAL  = 8
 
 # ── Hướng di chuyển ────────────────────────────────────────────
 DIRECTIONS = {
@@ -23,12 +25,17 @@ DIRECTIONS = {
 
 # ── Trạng thái ─────────────────────────────────────────────────
 
-def find_player(grid):
+def find_player(grid, player_id=1):
+    target = (PLAYER, PLAYER_ON_GOAL) if player_id == 1 else (PLAYER2, PLAYER2_ON_GOAL)
     for r, row in enumerate(grid):
         for c, v in enumerate(row):
-            if v in (PLAYER, PLAYER_ON_GOAL):
+            if v in target:
                 return r, c
     return None
+
+def find_players(grid):
+    return find_player(grid, 1), find_player(grid, 2)
+
 
 def find_boxes(grid):
     boxes = []
@@ -42,7 +49,7 @@ def find_goals(grid):
     goals = []
     for r, row in enumerate(grid):
         for c, v in enumerate(row):
-            if v in (GOAL, BOX_ON_GOAL, PLAYER_ON_GOAL):
+            if v in (GOAL, BOX_ON_GOAL, PLAYER_ON_GOAL, PLAYER2_ON_GOAL):
                 goals.append((r, c))
     return goals
 
@@ -57,9 +64,9 @@ def clone(grid):
 
 # ── Di chuyển ──────────────────────────────────────────────────
 
-def apply_move(grid, direction):
+def apply_move(grid, direction, player_id=1):
     """
-    Áp dụng di chuyển theo tên hướng ("UP","DOWN","LEFT","RIGHT").
+    Áp dụng di chuyển của người chơi chỉ định.
     Trả về grid mới nếu hợp lệ, None nếu không hợp lệ.
     """
     if isinstance(direction, str):
@@ -69,19 +76,26 @@ def apply_move(grid, direction):
 
     grid = copy.deepcopy(grid)
     R, C = len(grid), len(grid[0])
-    pr, pc = find_player(grid)
+    pr, pc = find_player(grid, player_id)
+    if pr is None:
+        return None
+
     nr, nc = pr + dr, pc + dc
 
     if not (0 <= nr < R and 0 <= nc < C):
         return None
     if grid[nr][nc] == WALL:
         return None
+    if grid[nr][nc] in (PLAYER, PLAYER_ON_GOAL, PLAYER2, PLAYER2_ON_GOAL):
+        return None
 
     if grid[nr][nc] in (BOX, BOX_ON_GOAL):
         br, bc = nr + dr, nc + dc
         if not (0 <= br < R and 0 <= bc < C):
             return None
-        if grid[br][bc] in (WALL, BOX, BOX_ON_GOAL):
+        if grid[br][bc] in (WALL, BOX, BOX_ON_GOAL,
+                            PLAYER, PLAYER_ON_GOAL,
+                            PLAYER2, PLAYER2_ON_GOAL):
             return None
         old_box = grid[nr][nc]
         grid[br][bc] = BOX_ON_GOAL if grid[br][bc] == GOAL else BOX
@@ -89,13 +103,17 @@ def apply_move(grid, direction):
 
     old_player = grid[pr][pc]
     dest       = grid[nr][nc]
-    grid[pr][pc] = GOAL if old_player == PLAYER_ON_GOAL else EMPTY
-    grid[nr][nc] = PLAYER_ON_GOAL if dest == GOAL else PLAYER
+    grid[pr][pc] = GOAL if old_player in (PLAYER_ON_GOAL, PLAYER2_ON_GOAL) else EMPTY
+
+    if player_id == 1:
+        grid[nr][nc] = PLAYER_ON_GOAL if dest == GOAL else PLAYER
+    else:
+        grid[nr][nc] = PLAYER2_ON_GOAL if dest == GOAL else PLAYER2
 
     return grid
 
-def get_valid_moves(grid):
-    return [d for d in DIRECTIONS if apply_move(grid, d) is not None]
+def get_valid_moves(grid, player_id=1):
+    return [d for d in DIRECTIONS if apply_move(grid, d, player_id) is not None]
 
 # ── Heuristic ──────────────────────────────────────────────────
 

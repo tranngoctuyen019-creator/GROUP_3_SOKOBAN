@@ -10,8 +10,8 @@ from core.Game import find_player, DIRECTIONS
 from algorithms.Uninformed_Search   import solve_bfs #, solve_dfs, solve_ucs
 from algorithms.Informed_Search     import solve_idastar #, solve_astar, solve_greedy
 from algorithms.Local_Search        import solve_hill_climbing #, solve_simulated_annealing, solve_local_beam
-from algorithms.Constraint_Satisfaction_Problems     import solve_backtracking #, solve_bomb_forward_checking, solve_bomb_min_conflicts
-#from algorithms.Adversarial_Search      import  solve_alphabeta#, solve_minimax, solve_expectimax
+from algorithms.Constraint_Satisfaction_Problems     import solve_bomb_backtracking #, solve_bomb_forward_checking, solve_bomb_min_conflicts
+from algorithms.Adversarial_Search import solve_alphabeta
 from algorithms.Complex_Environments    import solve_partial_observation#, solve_and_or, solve_no_observation
 
 MAP_OPTIONS = [
@@ -54,6 +54,20 @@ MAP_OPTIONS = [
             [1, 1, 1, 1, 1, 1, 1, 1],
         ],
     },
+    {
+        "label": "Map 4 – Đối kháng 2 robots",
+        "grid": [
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 7, 1],
+            [1, 0, 0, 1, 0, 0, 0, 1],
+            [1, 0, 0, 3, 0, 1, 0, 1],
+            [1, 0, 0, 0, 0, 4, 0, 1],
+            [1, 0, 2, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+        ],
+        "adversarial": True,
+    },
 ]
 
 ALGO_GROUPS = [
@@ -66,13 +80,11 @@ ALGO_GROUPS = [
                #("Simulated Annealing", solve_simulated_annealing),
                #("Local Beam Search", solve_local_beam)]},
     {"name": "CSP",               "color": "#a29bfe",
-     "algos": [("Backtracking", solve_backtracking),]},
+     "algos": [("Backtracking", solve_bomb_backtracking),]},
                #("Forward Checking", solve_forward_checking),
                #("Min-Conflicts", solve_min_conflicts)]},
-   # {"name": "Adversarial Search","color": "#e94560",
-    # "algos": [("Alpha-Beta", solve_alphabeta),]},
-                #("Minimax", solve_minimax),
-               #("Expectimax", solve_expectimax)]},
+    {"name": "Adversarial Search","color": "#e94560",
+     "algos": [("Alpha-Beta vs A*", solve_alphabeta)]},
     {"name": "Belief State",      "color": "#fd79a8",
      "algos": [("Partial Observation", solve_partial_observation),]},
               # ("AND-OR Graph", solve_and_or), ("Sensorless", solve_no_observation)]},
@@ -477,9 +489,12 @@ class MainWindow(tk.Tk):
             self._btn_tab_log.config(bg=inactive_bg, fg=inactive_fg)
             self._tab_hist_frame.lift()  # đưa history lên trên, log vẫn ở đó
 
-    def _add_history(self, algo_name, map_label, time_elapsed, steps, found):
+    def _add_history(self, algo_name, map_label, time_elapsed, steps, found, winner=None):
         found_str = "✅ Có" if found else "❌ Không"
-        time_str  = f"{time_elapsed}s" if time_elapsed < 10 else f"{time_elapsed:.1f}s"
+        if winner:
+            time_str = winner
+        else:
+            time_str  = f"{time_elapsed}s" if time_elapsed < 10 else f"{time_elapsed:.1f}s"
         steps_str = str(steps) if found else "–"
         self._hist_tree.insert("", 0, values=(algo_name, map_label, time_str, steps_str, found_str))
     def _clear_history(self):
@@ -500,13 +515,15 @@ class MainWindow(tk.Tk):
                         padx=8, pady=6,
                         highlightbackground=accent,
                         highlightthickness=1)
-        tk.Label(card, text=label,
+        lbl = tk.Label(card, text=label,
             font=("Consolas", 11), fg=THEME["text"],
-            bg=THEME["header"]).pack(anchor="w")
+            bg=THEME["header"])
+        lbl.pack(anchor="w")
         val_lbl = tk.Label(card, text=value,
             font=("Consolas", 13, "bold"), fg=accent,
             bg=THEME["header"])
         val_lbl.pack(anchor="w")
+        card._label = lbl
         card._val_label = val_lbl
         return card
 
@@ -515,11 +532,17 @@ class MainWindow(tk.Tk):
             for card in (self._card_nodes, self._card_time,
                          self._card_steps, self._card_depth):
                 card._val_label.config(text="–")
+            self._card_time._label.config(text="Thời gian")
             return
         self._card_nodes._val_label.config(text=f"{r['nodes_visited']:,}")
-        self._card_time._val_label.config(
-            text=f"{r['time_elapsed']}s" if r['time_elapsed'] < 10
-            else f"{r['time_elapsed']:.1f}s")
+        if r.get("winner"):
+            self._card_time._label.config(text="Người thắng")
+            self._card_time._val_label.config(text=r["winner"])
+        else:
+            self._card_time._label.config(text="Thời gian")
+            self._card_time._val_label.config(
+                text=f"{r['time_elapsed']}s" if r['time_elapsed'] < 10
+                else f"{r['time_elapsed']:.1f}s")
         self._card_steps._val_label.config(text=str(r['solution_len']))
         self._card_depth._val_label.config(text=str(r['max_depth']))
 
@@ -671,6 +694,8 @@ class MainWindow(tk.Tk):
         if r["found"]:
             if r.get("mode") == "bomb":
                 self._lbl_status.config(text="💣  Bom đã được đặt! Sẵn sàng nổ!", fg=color)
+            elif r.get("winner"):
+                self._lbl_status.config(text=f"🏁  {r['winner']} thắng!", fg=color)
             else:
                 self._lbl_status.config(text="✅  Tìm thấy lời giải!", fg=color)
         else:
@@ -681,7 +706,8 @@ class MainWindow(tk.Tk):
 
         # Add to history
         self._add_history(f"{group['name']} › {name}", map_label,
-                  r["time_elapsed"], r["solution_len"], r["found"])
+                  r["time_elapsed"], r["solution_len"], r["found"],
+                  winner=r.get("winner"))
 
         if r["path"]:
             self._canvas.draw(r["path"][0][0])

@@ -19,12 +19,9 @@ def solve_idastar(initial_grid, max_nodes=40000, max_threshold=1000):
     """
 
     t0 = time.time()
-
     nodes = [0]
     max_dep = [0]
-
     threshold = heuristic(initial_grid)
-
     start = Node(initial_grid)
 
     path = [start]
@@ -35,13 +32,10 @@ def solve_idastar(initial_grid, max_nodes=40000, max_threshold=1000):
 
     def ida_dfs(path, g, threshold):
         nonlocal best_path
-
         node = path[-1]
-
         # Cập nhật đường đi sâu nhất
         if len(path) > len(best_path):
             best_path = path.copy()
-
         nodes[0] += 1
 
         if nodes[0] >= max_nodes:
@@ -51,27 +45,19 @@ def solve_idastar(initial_grid, max_nodes=40000, max_threshold=1000):
             max_dep[0] = g
 
         f = g + heuristic(node.grid)
-
         if f > threshold:
             return f
-
         if is_solved(node.grid):
             return "FOUND"
 
         minimum = float("inf")
-
         for move in DIRECTIONS:
-
             new_grid = apply_move(node.grid, move)
-
             if new_grid is None:
                 continue
-
             key = grid_to_key(new_grid)
-
             if key in path_keys:
                 continue
-
             child = Node(new_grid, node, move, g + 1)
 
             path.append(child)
@@ -81,18 +67,13 @@ def solve_idastar(initial_grid, max_nodes=40000, max_threshold=1000):
 
             if result == "FOUND":
                 return "FOUND"
-
             minimum = min(minimum, result)
-
             path.pop()
             path_keys.remove(key)
-
         return minimum
-
+    
     while threshold <= max_threshold:
-
         result = ida_dfs(path, 0, threshold)
-
         if result == "FOUND":
             return make_result(
                 extract_path(path[-1]),
@@ -101,10 +82,8 @@ def solve_idastar(initial_grid, max_nodes=40000, max_threshold=1000):
                 max_dep[0],
                 time.time() - t0,
             )
-
         if result == float("inf"):
             break
-
         threshold = result
 
     # Không tìm thấy lời giải -> trả về đường đi đã khám phá sâu nhất

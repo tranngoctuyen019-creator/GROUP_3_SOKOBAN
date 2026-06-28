@@ -4,7 +4,8 @@
 
 import tkinter as tk
 from core.Game import (WALL, PLAYER, BOX, GOAL,
-                       BOX_ON_GOAL, PLAYER_ON_GOAL, EMPTY)
+                       BOX_ON_GOAL, PLAYER_ON_GOAL, PLAYER2,
+                       PLAYER2_ON_GOAL, EMPTY)
 
 # Ký hiệu bom (từ bomb_solver)
 BOMB      = 10
@@ -35,15 +36,17 @@ THEME = {
 
 TILE_BG = {
     WALL:          "#e17f3e",
-    EMPTY:          "#B8A789",
-    GOAL:           "#0d2618",
-    PLAYER:         "#115A32",
-    PLAYER_ON_GOAL:  "#38b08a",
-    BOX:            "#9a710a",
-    BOX_ON_GOAL:     "#009C1A",
-    BOMB:           "#2a1a3e",
-    BOMB_GOAL:      "#4a0a0a",
-    EXPLODED:       "#ff6600",
+    EMPTY:         "#B8A789",
+    GOAL:          "#0d2618",
+    PLAYER:        "#115A32",
+    PLAYER_ON_GOAL:"#38b08a",
+    BOX:           "#9a710a",
+    BOX_ON_GOAL:   "#009C1A",
+    PLAYER2:       "#7f3fbf",
+    PLAYER2_ON_GOAL:"#a08be0",
+    BOMB:          "#2a1a3e",
+    BOMB_GOAL:     "#4a0a0a",
+    EXPLODED:      "#ff6600",
 }
 
 CELL = 56   # pixel mỗi ô — thay đổi ở đây để scale toàn bộ
@@ -104,7 +107,7 @@ class MapCanvas(tk.Canvas):
                     self._draw_wall(x1, y1, x2, y2, sz)
                     continue
 
-                if val in (GOAL, PLAYER_ON_GOAL, BOX_ON_GOAL):
+                if val in (GOAL, PLAYER_ON_GOAL, BOX_ON_GOAL, PLAYER2_ON_GOAL):
                     self._draw_goal(cx, cy, sz)
                     if val == GOAL:
                         self.create_text(cx, cy, text="◎",
@@ -115,8 +118,8 @@ class MapCanvas(tk.Canvas):
                     self._draw_box(x1, y1, x2, y2, cx, cy, sz,
                                    on_goal=(val == BOX_ON_GOAL))
 
-                if val in (PLAYER, PLAYER_ON_GOAL):
-                    self._draw_player(cx, cy, sz)
+                if val in (PLAYER, PLAYER_ON_GOAL, PLAYER2, PLAYER2_ON_GOAL):
+                    self._draw_player(cx, cy, sz, player=val)
 
                 if val in (BOMB, BOMB_GOAL):
                     self._draw_bomb(cx, cy, sz, activated=(val == BOMB_GOAL))
@@ -166,8 +169,10 @@ class MapCanvas(tk.Canvas):
             font=("Arial", int(sz * 0.28), "bold"),
             fill=THEME["bg"])
 
-    def _draw_player(self, cx, cy, sz):
+    def _draw_player(self, cx, cy, sz, player=PLAYER):
         h = sz // 7
+        color = "#115A32" if player in (PLAYER, PLAYER_ON_GOAL) else "#7f3fbf"
+        hat_color = "#f1c40f" if player in (PLAYER, PLAYER_ON_GOAL) else "#d57eff"
 
         # Đầu
         self.create_oval(
@@ -183,7 +188,7 @@ class MapCanvas(tk.Canvas):
             cx - h - 2, cy - sz // 3 - 2,
             cx + h + 2, cy - sz // 8,
             start=0, extent=180,
-            fill=THEME["gold"],
+            fill=hat_color,
             outline="#b67b00",
             width=2
         )
